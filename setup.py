@@ -25,13 +25,14 @@ version = re.search(
 ).group(1)
 
 
-NAME = 'python-docx'
+NAME = 'python-docx-header-footer'
 VERSION = version
-DESCRIPTION = 'Create and update Microsoft Word .docx files.'
+DESCRIPTION = 'Work with Microsoft Word .docx files. Fork of the https://github.com/python-openxml/python-docx'
 KEYWORDS = 'docx office openxml word'
-AUTHOR = 'Steve Canny'
-AUTHOR_EMAIL = 'python-docx@googlegroups.com'
-URL = 'https://github.com/python-openxml/python-docx'
+AUTHOR = 'Vinicius Picossi Teruel'
+AUTHOR_EMAIL = 'viniciuspicossi@gmail.com'
+URL = 'https://github.com/picossi/python-docx'
+DOWNLOAD_URL = 'https://github.com/picossi/python-docx/archive/v0.8.7.tar.gz'
 LICENSE = text_of('LICENSE')
 PACKAGES = find_packages(exclude=['tests', 'tests.*'])
 PACKAGE_DATA = {'docx': ['templates/*']}
@@ -53,6 +54,8 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.3',
     'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
     'Topic :: Office/Business :: Office Suites',
     'Topic :: Software Development :: Libraries'
 ]
@@ -69,6 +72,7 @@ params = {
     'author':           AUTHOR,
     'author_email':     AUTHOR_EMAIL,
     'url':              URL,
+    'download_url':     DOWNLOAD_URL,
     'license':          LICENSE,
     'packages':         PACKAGES,
     'package_data':     PACKAGE_DATA,
