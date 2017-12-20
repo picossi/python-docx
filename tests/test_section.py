@@ -8,11 +8,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import pytest
 
+from docx.enum.header import WD_HEADER_FOOTER
 from docx.enum.section import WD_ORIENT, WD_SECTION
+from docx.header import Header
 from docx.section import Section, Sections
 from docx.shared import Inches
 
 from .unitutil.cxml import element, xml
+from .unitutil.mock import class_mock, instance_mock
 
 
 class DescribeSections(object):
@@ -39,17 +42,17 @@ class DescribeSections(object):
 
     @pytest.fixture
     def index_fixture(self, document_elm):
-        sections = Sections(document_elm)
+        sections = Sections(document_elm, None)
         return sections, [0, 1]
 
     @pytest.fixture
     def iter_fixture(self, document_elm):
-        sections = Sections(document_elm)
+        sections = Sections(document_elm, None)
         return sections, 2
 
     @pytest.fixture
     def len_fixture(self, document_elm):
-        sections = Sections(document_elm)
+        sections = Sections(document_elm, None)
         return sections, 2
 
     # fixture components ---------------------------------------------
@@ -109,7 +112,21 @@ class DescribeSection(object):
         setattr(section, margin_prop_name, new_value)
         assert section._sectPr.xml == expected_xml
 
+    def it_provides_access_to_its_header(self, header_fixture):
+        section, Header_, sectPr, header_ = header_fixture
+        header = section.header
+        Header_.assert_called_once_with(
+            sectPr, section, WD_HEADER_FOOTER.PRIMARY
+        )
+        assert header is header_
+
     # fixtures -------------------------------------------------------
+
+    @pytest.fixture
+    def header_fixture(self, Header_, header_):
+        sectPr = element('w:sectPr')
+        section = Section(sectPr, None)
+        return section, Header_, sectPr, header_
 
     @pytest.fixture(params=[
         ('w:sectPr/w:pgMar{w:left=120}',   'left_margin',      76200),
@@ -124,7 +141,7 @@ class DescribeSection(object):
     ])
     def margins_get_fixture(self, request):
         sectPr_cxml, margin_prop_name, expected_value = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         return section, margin_prop_name, expected_value
 
     @pytest.fixture(params=[
@@ -148,7 +165,7 @@ class DescribeSection(object):
     ])
     def margins_set_fixture(self, request):
         sectPr_cxml, property_name, new_value, expected_cxml = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         expected_xml = xml(expected_cxml)
         return section, property_name, new_value, expected_xml
 
@@ -160,7 +177,7 @@ class DescribeSection(object):
     ])
     def orientation_get_fixture(self, request):
         sectPr_cxml, expected_orientation = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         return section, expected_orientation
 
     @pytest.fixture(params=[
@@ -170,7 +187,7 @@ class DescribeSection(object):
     ])
     def orientation_set_fixture(self, request):
         new_orientation, expected_cxml = request.param
-        section = Section(element('w:sectPr'))
+        section = Section(element('w:sectPr'), None)
         expected_xml = xml(expected_cxml)
         return section, new_orientation, expected_xml
 
@@ -181,7 +198,7 @@ class DescribeSection(object):
     ])
     def page_height_get_fixture(self, request):
         sectPr_cxml, expected_page_height = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         return section, expected_page_height
 
     @pytest.fixture(params=[
@@ -190,7 +207,7 @@ class DescribeSection(object):
     ])
     def page_height_set_fixture(self, request):
         new_page_height, expected_cxml = request.param
-        section = Section(element('w:sectPr'))
+        section = Section(element('w:sectPr'), None)
         expected_xml = xml(expected_cxml)
         return section, new_page_height, expected_xml
 
@@ -201,7 +218,7 @@ class DescribeSection(object):
     ])
     def page_width_get_fixture(self, request):
         sectPr_cxml, expected_page_width = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         return section, expected_page_width
 
     @pytest.fixture(params=[
@@ -210,7 +227,7 @@ class DescribeSection(object):
     ])
     def page_width_set_fixture(self, request):
         new_page_width, expected_cxml = request.param
-        section = Section(element('w:sectPr'))
+        section = Section(element('w:sectPr'), None)
         expected_xml = xml(expected_cxml)
         return section, new_page_width, expected_xml
 
@@ -225,7 +242,7 @@ class DescribeSection(object):
     ])
     def start_type_get_fixture(self, request):
         sectPr_cxml, expected_start_type = request.param
-        section = Section(element(sectPr_cxml))
+        section = Section(element(sectPr_cxml), None)
         return section, expected_start_type
 
     @pytest.fixture(params=[
@@ -244,6 +261,18 @@ class DescribeSection(object):
     ])
     def start_type_set_fixture(self, request):
         initial_cxml, new_start_type, expected_cxml = request.param
-        section = Section(element(initial_cxml))
+        section = Section(element(initial_cxml), None)
         expected_xml = xml(expected_cxml)
         return section, new_start_type, expected_xml
+
+    # fixture components ---------------------------------------------
+
+    @pytest.fixture
+    def Header_(self, request, header_):
+        return class_mock(
+            request, 'docx.section.Header', return_value=header_
+        )
+
+    @pytest.fixture
+    def header_(self, request):
+        return instance_mock(request, Header)

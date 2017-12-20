@@ -121,6 +121,21 @@ class DocumentPart(XmlPart):
             self.relate_to(numbering_part, RT.NUMBERING)
             return numbering_part
 
+    def related_hdrftr_body(self, rId):
+        """
+        Return the |HeaderFooterBody| object corresponding to the related
+        part identified by *rId*.
+        """
+        part = self.get_related_part(rId)
+        return part.body
+
+    def get_related_part(self, rId):
+        """ HACK this isn't strictly necessary
+        just adding it because it seems much easier to mock than
+        self.rels.related_parts
+        """
+        return self.rels.related_parts[rId]
+
     def save(self, path_or_stream):
         """
         Save this document to *path_or_stream*, which can be either a path to

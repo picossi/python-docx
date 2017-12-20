@@ -8,37 +8,42 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from collections import Sequence
 
+from .enum.header import WD_HEADER_FOOTER
+from .header import Header
+from .shared import ElementProxy, lazyproperty
+
 
 class Sections(Sequence):
     """
     Sequence of |Section| objects corresponding to the sections in the
     document. Supports ``len()``, iteration, and indexed access.
     """
-    def __init__(self, document_elm):
+    def __init__(self, document_elm, parent):
         super(Sections, self).__init__()
+        self._parent = parent
         self._document_elm = document_elm
 
     def __getitem__(self, key):
         if isinstance(key, slice):
             sectPr_lst = self._document_elm.sectPr_lst[key]
-            return [Section(sectPr) for sectPr in sectPr_lst]
+            return [Section(sectPr, self._parent) for sectPr in sectPr_lst]
         sectPr = self._document_elm.sectPr_lst[key]
-        return Section(sectPr)
+        return Section(sectPr, self._parent)
 
     def __iter__(self):
         for sectPr in self._document_elm.sectPr_lst:
-            yield Section(sectPr)
+            yield Section(sectPr, self._parent)
 
     def __len__(self):
         return len(self._document_elm.sectPr_lst)
 
 
-class Section(object):
+class Section(ElementProxy):
     """
     Document section, providing access to section and page setup settings.
     """
-    def __init__(self, sectPr):
-        super(Section, self).__init__()
+    def __init__(self, sectPr, parent):
+        super(Section, self).__init__(sectPr, parent)
         self._sectPr = sectPr
 
     @property
@@ -79,6 +84,16 @@ class Section(object):
     @gutter.setter
     def gutter(self, value):
         self._sectPr.gutter = value
+
+    @lazyproperty
+    def header(self):
+        """
+        Return the |Header| object representing the default header for this
+        section. A |Header| object is always returned, whether such a header
+        is present or not. The header itself is added, updated, or removed
+        using the returned object.
+        """
+        return Header(self._sectPr, self, WD_HEADER_FOOTER.PRIMARY)
 
     @property
     def header_distance(self):
