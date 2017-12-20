@@ -25,7 +25,7 @@ version = re.search(
 ).group(1)
 
 
-NAME = 'python-docx-header-footer'
+NAME = 'python-docx'
 VERSION = version
 DESCRIPTION = 'Work with Microsoft Word .docx files. Fork of the https://github.com/python-openxml/python-docx'
 KEYWORDS = 'docx office openxml word'
